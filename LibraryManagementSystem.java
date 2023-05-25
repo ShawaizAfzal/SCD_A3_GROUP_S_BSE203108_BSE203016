@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import com.mysql.jdbc.Driver;
+
 
 // Data Access Object (DAO) interfaces
 interface BookDAO {
@@ -33,7 +35,29 @@ class Book {
     }
 
     // Getters and setters
-    // ...
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
     public boolean isIssued() {
         return issued;
@@ -56,8 +80,31 @@ class User {
     }
 
     // Getters and setters
-    // ...
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
+
 
 // Concrete implementations of DAO interfaces using JDBC
 class BookDAOImpl implements BookDAO {
@@ -180,26 +227,26 @@ public class LibraryManagementSystem extends JFrame {
             System.exit(0);
         }
 
-        // Create database connection
+        //  database connection
         Connection connection = null;
         try {
             String url = "jdbc:mysql://localhost/";
             String dbName = "library";
             String dbUsername = "root";
-            String dbPassword = "password";
+            String dbPassword = "S@654321";
             connection = DriverManager.getConnection(url, dbUsername, dbPassword);
 
-            // Create the database if it does not exist
+            // Create database
             Statement statement = connection.createStatement();
             statement.executeUpdate("CREATE DATABASE IF NOT EXISTS " + dbName);
 
-            // Use the library database
+            //  library database
             statement.executeUpdate("USE " + dbName);
 
-            // Create the books table if it does not exist
+            // Create the books
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS books (id INT PRIMARY KEY AUTO_INCREMENT, title VARCHAR(100), author VARCHAR(100), issued BOOLEAN)");
 
-            // Create the users table if it does not exist
+            // Create the users table 
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100), username VARCHAR(100))");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -255,23 +302,7 @@ public class LibraryManagementSystem extends JFrame {
         add(btnReturnBook);
     }
 
-    private void viewAvailableBooks() {
-        List<Book> books = bookDAO.getAllBooks();
-        if (books != null) {
-            StringBuilder sb = new StringBuilder();
-            for (Book book : books) {
-                if (!book.isIssued()) {
-                    sb.append("ID: ").append(book.getId())
-                            .append(", Title: ").append(book.getTitle())
-                            .append(", Author: ").append(book.getAuthor())
-                            .append("\n");
-                }
-            }
-            JOptionPane.showMessageDialog(null, sb.toString(), "Available Books", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(null, "Failed to retrieve books.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    
 
     private void viewUsers() {
         List<User> users = userDAO.getAllUsers();
@@ -348,6 +379,31 @@ public class LibraryManagementSystem extends JFrame {
         }
         JOptionPane.showMessageDialog(null, "Failed to return book.", "Error", JOptionPane.ERROR_MESSAGE);
     }
+
+    private void viewAvailableBooks() {
+        List<Book> books = bookDAO.getAllBooks();
+        if (books != null) {
+            StringBuilder sb = new StringBuilder();
+            boolean availableBooksExist = false; // Flag to check if any available books are found
+            for (Book book : books) {
+                if (!book.isIssued()) {
+                    sb.append("ID: ").append(book.getId())
+                            .append(", Title: ").append(book.getTitle())
+                            .append(", Author: ").append(book.getAuthor())
+                            .append("\n");
+                    availableBooksExist = true;
+                }
+            }
+            if (availableBooksExist) {
+                JOptionPane.showMessageDialog(null, sb.toString(), "Available Books", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "No available books.", "Available Books", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Failed to retrieve books.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
